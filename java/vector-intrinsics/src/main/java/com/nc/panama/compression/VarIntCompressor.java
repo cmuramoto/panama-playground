@@ -67,16 +67,18 @@ public class VarIntCompressor {
 				doff += 16;
 			} else if (chunk.lessThan(Guards.byte3_test).allTrue()) {
 
-				doff = compressScalar(src, dst, soff, doff, soff + 8); // should a
+				doff = compressScalar(src, dst, soff, doff, soff + 8);
 			} else if (chunk.lessThan(Guards.byte4_test).allTrue()) {
-				var tmp = chunk.shiftR(21).and(0xFF);
-				var q3 = (ByteVector) tmp.reinterpret(_mm256i_byte).shiftER(3);
-				tmp = chunk.shiftR(14).or(0x80).and(0xFF);
-				var q2 = (ByteVector) tmp.reinterpret(_mm256i_byte).shiftER(2);
-				tmp = chunk.shiftR(7).or(0x80).and(0xFF);
-				var q1 = (ByteVector) tmp.reinterpret(_mm256i_byte).shiftER(1);
-				tmp = chunk.and(0x7F).or(0x80).and(0xFF);
-				var q0 = (ByteVector) tmp.reinterpret(_mm256i_byte);
+				var q0 = (ByteVector) chunk.and(0x7F).or(0x80).and(0xFF).reinterpret(_mm256i_byte);
+
+				var q1 = (ByteVector) chunk.shiftR(7).or(0x80).and(0xFF).reinterpret(_mm256i_byte);
+				q1 = q1.shiftER(1);
+
+				var q2 = (ByteVector) chunk.shiftR(14).or(0x80).and(0xFF).reinterpret(_mm256i_byte);
+				q2 = q2.shiftER(2);
+
+				var q3 = (ByteVector) chunk.shiftR(21).and(0xFF).reinterpret(_mm256i_byte);
+				q3 = q3.shiftER(3);
 
 				var store = q0.or(q1.or(q2.or(q3)));
 
@@ -210,6 +212,10 @@ public class VarIntCompressor {
 			dst[doff++] = (byte) (v >>> 28);
 		}
 		return doff;
+	}
+
+	public static int testVectorAndcompressScalar(int[] src, byte[] dst) {
+		return testVectorAndcompressScalar(src, dst, 0, 0);
 	}
 
 	public static int testVectorAndcompressScalar(int[] src, byte[] dst, int soff, int doff) {

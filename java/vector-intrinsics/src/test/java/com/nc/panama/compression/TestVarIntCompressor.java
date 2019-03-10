@@ -109,7 +109,7 @@ public class TestVarIntCompressor {
 
 		case TestVector:
 			for (int i = 0; i < n; i++) {
-				VarIntCompressor.compress(src, dst);
+				VarIntCompressor.testVectorAndcompressScalar(src, dst);
 			}
 
 			System.out.printf("[V-S]N=%d. Elapsed: %dms\n", n, System.currentTimeMillis() - now);
