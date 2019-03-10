@@ -1,0 +1,10 @@
+.classpath
+.project
+.out
+.settings
+*.class
+*.csv
+tags
+target/
+tmp/
+/bin
